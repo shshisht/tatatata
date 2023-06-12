@@ -1,0 +1,45 @@
+import numpy as np
+
+class Perceptron:
+    def __init__(self, learning_rate=0.1, num_iterations=100):
+        self.learning_rate = learning_rate
+        self.num_iterations = num_iterations
+
+    def train(self, X, T):
+        self.weights = np.zeros(X.shape[1])
+        self.bias = 1
+        self.threshold = 0.5
+
+        print("Iteration |   w1   |   w2   |   w3   |  theta  |   x1   |   x2   |   x3   |  Activation |   Y   |   T    |    δ     |  δw1  |  δw2  |  δw3")
+        print("-" * 116)
+
+        for _ in range(self.num_iterations):
+            all_matched = True  # Flag to track if all elements of Y match T
+            for i in range(X.shape[0]):
+                Y = self.predict(X[i])
+                delta = T[i] - Y
+                self.weights += self.learning_rate * delta * X[i]
+
+                input_data = " ".join(str(x) for x in X[i])
+                activation = np.dot(X[i], self.weights) + self.bias
+                delta_weights = ", ".join(str(self.learning_rate * delta * x) for x in X[i])
+
+                print(f"{_:^9} | {self.weights[0]:^6.3f} | {self.weights[1]:^6.3f} | {self.weights[2]:^6.3f} | {self.threshold:^7.3f} | {input_data:^28} | {activation:^6.3f} | {Y:^6} | {T[i]:^6} | {delta:^8} | {delta_weights:^20}")
+
+                if delta != 0:  # Check if delta is not zero
+                    all_matched = False
+
+            if all_matched:
+                break  # Exit the loop if all elements of Y match T
+
+    def predict(self, X):
+        linear_output = np.dot(X, self.weights) + self.bias
+        return np.where(linear_output >= self.threshold, 1, 0)
+
+# Generate dataset
+X = np.array([[0, 0, 0], [0, 0, 1], [0, 1, 0], [0, 1, 1], [1, 0, 0], [1, 0, 1], [1, 1, 0], [1, 1, 1]])
+Y = np.array([1, 1, 1, 1, 0, 1, 1, 1])
+
+# Train perceptron
+perceptron = Perceptron(num_iterations=1000)  # Set the maximum number of iterations to 1000
+perceptron.train(X, Y)
